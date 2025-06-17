@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Airplane Accident Statistics (2015-2024)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    canvas {
+      display: block;
+      margin: 20px auto;
+    }
+    .sources {
+      font-size: 0.9em;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Airplane Accident Statistics (2015–2024)</h1>
+  <h2>Fatal Accidents per 10 Million Flights</h2>
+  <canvas id="barChart" width="600" height="400"></canvas>
+  
+  <h2>Accident Causes by Brand (Share of Accidents)</h2>
+  <canvas id="pieChart" width="600" height="400"></canvas>
+
+  <h2>Brand vs Causes Bubble Chart</h2>
+  <canvas id="bubbleChart" width="600" height="400"></canvas>
+
+  <div class="sources">
+    <strong>Sources:</strong>
+    <ul>
+      <li>IATA Safety Reports (2015–2024)</li>
+      <li>ICAO Accident Database</li>
+      <li>Aircraft manufacturers' public data (Boeing, Airbus, ATR, Embraer)</li>
+      <li>Flight Global, Aviation Safety Network</li>
+    </ul>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    const barChart = new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Boeing', 'Airbus', 'ATR', 'Bombardier', 'Embraer', 'Other'],
+        datasets: [{
+          label: 'Fatal Accidents per 10 Million Flights',
+          data: [0.4, 0.1, 0.7, 0.5, 0.5, 2.0],
+          backgroundColor: [
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(153, 102, 255, 0.7)',
+            'rgba(255, 159, 64, 0.7)'
+          ]
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Fatal Accidents / 10M Flights'
+            }
+          }
+        }
+      }
+    });
+
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(pieCtx, {
+      type: 'pie',
+      data: {
+        labels: ['Design/Tech Failure', 'Pilot Error', 'Weather', 'ATC/Ground', 'Conflict/Other'],
+        datasets: [{
+          data: [25, 40, 15, 5, 15],
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(153, 102, 255, 0.7)'
+          ]
+        }]
+      },
+      options: {
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+
+    const bubbleCtx = document.getElementById('bubbleChart').getContext('2d');
+    const bubbleChart = new Chart(bubbleCtx, {
+      type: 'bubble',
+      data: {
+        datasets: [
+          {
+            label: 'Boeing',
+            data: [{x: 1, y: 0.4, r: 15}],
+            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+            parsing: false,
+            cause: 'Pilot Error (lead), Design/Tech Failure (2nd)'
+          },
+          {
+            label: 'Airbus',
+            data: [{x: 2, y: 0.1, r: 10}],
+            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+            parsing: false,
+            cause: 'Pilot Error (lead), Weather (2nd)'
+          },
+          {
+            label: 'ATR',
+            data: [{x: 3, y: 0.7, r: 20}],
+            backgroundColor: 'rgba(255, 206, 86, 0.7)',
+            parsing: false,
+            cause: 'Weather (lead), Pilot Error (2nd)'
+          },
+          {
+            label: 'Bombardier',
+            data: [{x: 4, y: 0.5, r: 18}],
+            backgroundColor: 'rgba(75, 192, 192, 0.7)',
+            parsing: false,
+            cause: 'Pilot Error (lead), ATC/Ground (2nd)'
+          },
+          {
+            label: 'Embraer',
+            data: [{x: 5, y: 0.5, r: 18}],
+            backgroundColor: 'rgba(153, 102, 255, 0.7)',
+            parsing: false,
+            cause: 'Pilot Error (lead), Weather (2nd)'
+          },
+          {
+            label: 'Other',
+            data: [{x: 6, y: 2.0, r: 25}],
+            backgroundColor: 'rgba(255, 159, 64, 0.7)',
+            parsing: false,
+            cause: 'Design/Tech Failure (lead), Pilot Error (2nd)'
+          }
+        ]
+      },
+      options: {
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const dataPoint = context.dataset;
+                return `${dataPoint.label}: ${dataPoint.cause}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Brand Index'
+            },
+            ticks: {
+              callback: function(value) {
+                const labels = ['', 'Boeing', 'Airbus', 'ATR', 'Bombardier', 'Embraer', 'Other'];
+                return labels[value] || value;
+              }
+            },
+            min: 0,
+            max: 7
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Fatal Accidents / 10M Flights'
+            },
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
